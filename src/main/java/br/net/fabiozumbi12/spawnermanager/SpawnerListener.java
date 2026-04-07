@@ -55,7 +55,7 @@ public class SpawnerListener implements Listener {
                     entity = oEntity.orElse(EntityType.PIG);
                 }
             } else {
-                return;
+                entity = EntityType.PIG;
             }
 
             // Check if is disabled
