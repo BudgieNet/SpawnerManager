@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SpawnerListener implements Listener {
 
@@ -45,9 +47,21 @@ public class SpawnerListener implements Listener {
         if (block.getType().name().contains("SPAWNER") && block.getState() instanceof CreatureSpawner) {
 
             EntityType entity;
-            if (hand.hasItemMeta() && hand.getItemMeta().hasLore()) {
-                List<String> lore = hand.getItemMeta().getLore();
-                String loreStr = ChatColor.stripColor(lore.get(0));
+            if (hand.hasItemMeta()) {
+                String loreStr;
+
+                if (hand.getItemMeta().hasLore()) {
+                    List<String> lore = hand.getItemMeta().getLore();
+                    loreStr = ChatColor.stripColor(lore.get(0)).toUpperCase();
+                } else {
+                    String data = hand.getItemMeta().getAsComponentString();
+                    Matcher matcher = Pattern.compile("SpawnData: \\{entity: \\{id: \"minecraft:(.*?)\"").matcher(data);
+                    if (matcher.find()) {
+                        loreStr = matcher.group(1).toUpperCase();
+                    } else {
+                        loreStr = "";
+                    }
+                }
                 if (loreStr.equals("PIG_ZOMBIE") && Arrays.stream(EntityType.values()).noneMatch(e -> e.name().equals("PIG_ZOMBIE"))) {
                     entity = EntityType.valueOf("ZOMBIFIED_PIGLIN");
                 } else {
