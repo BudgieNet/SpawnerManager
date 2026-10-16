@@ -23,7 +23,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.16.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -76,13 +76,13 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>26.3.build.175-stable</version>
+            <version>26.3.build.200-stable</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>br.net.fabiozumbi12</groupId>
             <artifactId>TranslationAPI</artifactId>
-            <version>LATEST</version>
+            <version>1.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
