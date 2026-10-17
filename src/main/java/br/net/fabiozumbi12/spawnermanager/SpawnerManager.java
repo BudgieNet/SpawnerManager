@@ -1,5 +1,6 @@
 package br.net.fabiozumbi12.spawnermanager;
 
+import com.budgienet.chatutil.ChatUtil;
 import br.net.fabiozumbi12.spawnermanager.metrics.Metrics;
 import br.net.fabiozumbi12.translationapi.TranslationAPI;
 import br.net.fabiozumbi12.translationapi.TranslationCore;
@@ -36,6 +37,7 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
 
     @Override
     public void onEnable() {
+        ChatUtil.init(this);
         // Plugin startup logic
         plugin = this;
 
@@ -75,24 +77,24 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
         try {
             getConfig().save(config);
         } catch (IOException e) {
-            e.printStackTrace();
+            ChatUtil.error(e.toString(), e);
         }
         getServer().getPluginManager().registerEvents(new SpawnerListener(this), this);
-        getLogger().info("SpawnerManager loaded!");
+        ChatUtil.log("SpawnerManager loaded!");
 
         Plugin p = Bukkit.getPluginManager().getPlugin("TranslationAPI");
         if (p != null && p.isEnabled()) {
             tapi = TranslationAPI.getAPI();
-            getLogger().info("Translation API found. We will use for spawner translations.");
+            ChatUtil.log("Translation API found. We will use for spawner translations.");
         }
 
         // Metrics
         try {
             Metrics metrics = new Metrics(this);
             if (metrics.isEnabled())
-                getLogger().info("Metrics enabled! See our stats here: https://bstats.org/plugin/bukkit/SpawnerManager");
+                ChatUtil.log("Metrics enabled! See our stats here: https://bstats.org/plugin/bukkit/SpawnerManager");
         } catch (Exception ex) {
-            getLogger().info("Metrics not enabled due errors: " + ex.getLocalizedMessage());
+            ChatUtil.log("Metrics not enabled due errors: " + ex.getLocalizedMessage());
         }
     }
 
@@ -103,7 +105,7 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        getLogger().info("SpawnerManager disabled!");
+        ChatUtil.log("SpawnerManager disabled!");
     }
 
     @Override
@@ -113,7 +115,7 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
             if (args[0].equalsIgnoreCase("reload")) {
                 if (!sender.hasPermission("spawnermanager.command.reload")) return false;
 
-                sender.sendMessage(getLang("reloaded", true));
+                ChatUtil.sendMsg(sender, getLang("reloaded", true), false);
                 reloadConfig();
                 return true;
             }
@@ -127,12 +129,12 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                     Block spawner = optSpawn.get();
                     if (spawner.hasMetadata("mined")) {
                         spawner.removeMetadata("mined", plugin);
-                        sender.sendMessage(getLang("setwild", true));
+                        ChatUtil.sendMsg(sender, getLang("setwild", true), false);
                     } else {
-                        sender.sendMessage(getLang("notsetwild", true));
+                        ChatUtil.sendMsg(sender, getLang("notsetwild", true), false);
                     }
                 } else {
-                    sender.sendMessage(getLang("notspawner", true));
+                    ChatUtil.sendMsg(sender, getLang("notspawner", true), false);
                 }
                 return true;
             }
@@ -149,14 +151,14 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                     if (Bukkit.getPlayer(args[2]) != null)
                         player = Bukkit.getPlayer(args[2]);
                     else {
-                        sender.sendMessage(getLang("noonlineplayer", true).replace("{player}", args[1]));
+                        ChatUtil.sendMsg(sender, getLang("noonlineplayer", true).replace("{player}", args[1]), false);
                         return false;
                     }
                 }
 
                 if (player == null) {
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(getLang("onlyplayers", true));
+                        ChatUtil.sendMsg(sender, getLang("onlyplayers", true), false);
                         return false;
                     } else {
                         player = (Player) sender;
@@ -175,7 +177,7 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
 
                 if (hand != null) {
                     setItemSpawnwer(hand, entity, player.getName());
-                    sender.sendMessage(getLang("setto", true).replace("{type}", hand.getAmount() + "x " + capSpawnerName(entity)));
+                    ChatUtil.sendMsg(sender, getLang("setto", true).replace("{type}", hand.getAmount() + "x " + capSpawnerName(entity)), false);
                     return true;
                 }
 
@@ -187,7 +189,7 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                     return true;
                 }
 
-                sender.sendMessage(getLang("invalid", true));
+                ChatUtil.sendMsg(sender, getLang("invalid", true), false);
                 return false;
             }
         }
@@ -198,12 +200,12 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                 if (!sender.hasPermission("spawnermanager.command.give")) return false;
 
                 if (Bukkit.getPlayer(args[1]) == null) {
-                    sender.sendMessage(getLang("noonlineplayer", true).replace("{player}", args[1]));
+                    ChatUtil.sendMsg(sender, getLang("noonlineplayer", true).replace("{player}", args[1]), false);
                     return false;
                 }
 
                 if (Arrays.stream(EntityType.values()).noneMatch(e -> e.name().equalsIgnoreCase(args[2]))) {
-                    sender.sendMessage(getLang("noentitytype", true).replace("{entity}", args[2]));
+                    ChatUtil.sendMsg(sender, getLang("noentitytype", true).replace("{entity}", args[2]), false);
                     return false;
                 }
 
@@ -213,13 +215,13 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                     try {
                         int amount = Integer.parseInt(args[3]);
                         if (amount < 1 || amount > Material.SPAWNER.getMaxStackSize()) {
-                            sender.sendMessage(getLang("invalidstacksize", true).replace("{size}", String.valueOf(amount)));
+                            ChatUtil.sendMsg(sender, getLang("invalidstacksize", true).replace("{size}", String.valueOf(amount)), false);
                             return false;
                         }
 
                         item = new ItemStack(Material.SPAWNER, amount);
                     } catch (Exception ignored) {
-                        sender.sendMessage(getLang("invalidnumber", true).replace("{number}", args[3]));
+                        ChatUtil.sendMsg(sender, getLang("invalidnumber", true).replace("{number}", args[3]), false);
                         return false;
                     }
                 }
@@ -230,10 +232,10 @@ public final class SpawnerManager extends JavaPlugin implements CommandExecutor,
                 setItemSpawnwer(item, entity, player.getName());
 
                 player.getInventory().addItem(item);
-                sender.sendMessage(getLang("given", true)
+                ChatUtil.sendMsg(sender, getLang("given", true)
                         .replace("{amount}", String.valueOf(item.getAmount()))
                         .replace("{type}", capSpawnerName(entity))
-                        .replace("{player}", player.getName()));
+                        .replace("{player}", player.getName()), false);
             }
         }
         return false;
