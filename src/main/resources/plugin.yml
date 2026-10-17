@@ -1,9 +1,9 @@
-name: SpawnerManager
-version: ${project.version}
-main: br.net.fabiozumbi12.spawnermanager.SpawnerManager
-api-version: 26.3
+name: ${name}
+version: '${version}'
+main: ${main}
+api-version: '${apiVersion}'
 authors: [FabioZumbi12]
-description: Plugin to manage the servers spawners
+description: ${description}
 softdepend: [TranslationAPI]
 commands:
   spawnermanager:
